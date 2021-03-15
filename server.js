@@ -83,6 +83,63 @@ router.post('/signin', function (req, res) {
     })
 });
 
+
+router.use('/movies/:movieTitle', authJwtController.isAuthenticated)
+
+router.delete('/movies/:movieTitle', (req, res) => {
+    if (!req.params.movieTitle) {
+        return res.json({ success: false, message: "Please provide a title to delete." });
+    } else {
+        Movie.findOneAndDelete(req.params.movieTitle, function (err, movie) {
+            if (err) {
+                return res.status(403).json({ success: false, message: "Unable to delete title passed in." });
+            } else if (!movie) {
+                return res.status(403).json({ success: false, message: "Unable to find title to delete." });
+            } else {
+                return res.status(200).json({ success: true, message: "Successfully deleted title." });
+            }
+        });
+    }
+})
+
+router.get('/movies/:movieTitle', authJwtController.isAuthenticated, function (req, res) {
+    console.log('movie: ', req.params.movieTitle)
+
+    if (!req.params.movieTitle) {
+        return res.json({ success: false, message: "Please provide a title to be retrieved." });
+    } else {
+        Movie.find({ "title": req.params.movieTitle }).select("title year_released genre actors").exec(function (err, movie) {
+            if (err) {
+                return res.status(403).json({ success: false, message: "Unable to retrieve title passed in." });
+            }
+            if (movie && movie.length > 0) {
+                return res.status(200).json({ success: true, message: "Successfully retrieved movie.", movie: movie });
+            } else {
+                return res.status(404).json({ success: false, message: "Unable to retrieve a match for title passed in." });
+            }
+        })
+    }
+})
+
+
+
+router.put('/movies', (req, res) => {
+    if (!req.body.old_title || !req.body.updated_movie) {
+        return res.json({ success: false, message: "Please provide a title to be updated as well as the new updated title." });
+    } else {
+        Movie.findOneAndUpdate({"title": req.body.old_title}, req.body.updated_movie, function (err, movie) {
+            if (err) {
+                return res.status(403).json({ success: false, message: "Unable to update title passed in." });
+            } else if (!movie) {
+                return res.status(403).json({ success: false, message: "Unable to find title to update." });
+            } else {
+                return res.status(200).json({ success: true, message: "Successfully updated title." });
+            }
+        });
+    }
+})
+
+
 router.route('/movies')
     .post(authJwtController.isAuthenticated, function (req, res) {
         if (!req.body.title || !req.body.year_released || !req.body.genre || !req.body.actors[0] || !req.body.actors[1] || !req.body.actors[2]) {
@@ -108,61 +165,11 @@ router.route('/movies')
             });
         }
     })
-    .put(authJwtController.isAuthenticated, function (req, res) {
-        if (!req.body.find_title || !req.body.update_title) {
-            return res.json({ success: false, message: "Please provide a title to be updated as well as the new updated title." });
-        } else {
-            Movie.findOneAndUpdate(req.body.find_title, req.body.update_title, function (err, movie) {
-                if (err) {
-                    return res.status(403).json({ success: false, message: "Unable to update title passed in." });
-                } else if (!movie) {
-                    return res.status(403).json({ success: false, message: "Unable to find title to update." });
-                } else {
-                    return res.status(200).json({ success: true, message: "Successfully updated title." });
-                }
-            });
-        }
-    }).all(function (req, res) {
+    .all(function (req, res) {
         return res.status(403).json({ success: false, message: "This HTTP method is not supported. Only GET, POST, PUT, and DELETE are supported." });
     });
 
 
-
-
-
-router.route('/movies/:movieTitle')
-
-    .delete(authJwtController.isAuthenticated, function (req, res) {
-        if (!req.params.movieTitle) {
-            return res.json({ success: false, message: "Please provide a title to delete." });
-        } else {
-            Movie.findOneAndDelete(req.params.movieTitle, function (err, movie) {
-                if (err) {
-                    return res.status(403).json({ success: false, message: "Unable to delete title passed in." });
-                } else if (!movie) {
-                    return res.status(403).json({ success: false, message: "Unable to find title to delete." });
-                } else {
-                    return res.status(200).json({ success: true, message: "Successfully deleted title." });
-                }
-            });
-        }
-    })
-    .get(authJwtController.isAuthenticated, function (req, res) {
-        if (!req.params.movieTitle) {
-            return res.json({ success: false, message: "Please provide a title to be retrieved." });
-        } else {
-            Movie.find(req.params.movieTitle).select("title year_released genre actors").exec(function (err, movie) {
-                if (err) {
-                    return res.status(403).json({ success: false, message: "Unable to retrieve title passed in." });
-                }
-                if (movie && movie.length > 0) {
-                    return res.status(200).json({ success: true, message: "Successfully retrieved movie.", movie: movie });
-                } else {
-                    return res.status(404).json({ success: false, message: "Unable to retrieve a match for title passed in." });
-                }
-            })
-        }
-    })
 
 
 router.all('/', function (req, res) {
