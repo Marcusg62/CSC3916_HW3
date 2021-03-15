@@ -130,7 +130,7 @@ router.route('/movies')
 
 
 
-router.route('/movies/movieTitle')
+router.route('/movies/:movieTitle')
 
     .delete(authJwtController.isAuthenticated, function (req, res) {
         if (!req.params.movieTitle) {
