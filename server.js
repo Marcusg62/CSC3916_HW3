@@ -88,15 +88,15 @@ router.use('/movies/:movieTitle', authJwtController.isAuthenticated)
 
 router.delete('/movies/:movieTitle', (req, res) => {
     if (!req.params.movieTitle) {
-        return res.json({ success: false, message: "Please provide a title to delete." });
+        return res.json({ success: false, message: "Error: No title provided." });
     } else {
         Movie.findOneAndDelete(req.params.movieTitle, function (err, movie) {
             if (err) {
-                return res.status(403).json({ success: false, message: "Unable to delete title passed in." });
+                return res.status(403).json({ success: false, message: "Error: Error deleting movie. " });
             } else if (!movie) {
-                return res.status(403).json({ success: false, message: "Unable to find title to delete." });
-            } else {
-                return res.status(200).json({ success: true, message: "Successfully deleted title." });
+                return res.status(403).json({ success: false, message: "Error: No movie found to delete. " });
+            } else { 
+                return res.status(200).json({ success: true, message: "Error: Successfully deleted title. " });
             }
         });
     }
@@ -106,7 +106,7 @@ router.get('/movies/:movieTitle', authJwtController.isAuthenticated, function (r
     console.log('movie: ', req.params.movieTitle)
 
     if (!req.params.movieTitle) {
-        return res.json({ success: false, message: "Please provide a title to be retrieved." });
+        return res.json({ success: false, message: "Error: No title provided." });
     } else {
         Movie.find({ "title": req.params.movieTitle }).select("title year_released genre actors").exec(function (err, movie) {
             if (err) {
@@ -125,15 +125,15 @@ router.get('/movies/:movieTitle', authJwtController.isAuthenticated, function (r
 
 router.put('/movies', (req, res) => {
     if (!req.body.old_title || !req.body.updated_movie) {
-        return res.json({ success: false, message: "Please provide a title to be updated as well as the new updated title." });
+        return res.json({ success: false, message: "Error: Must pass movie title to be updated and fields to be updated. " });
     } else {
         Movie.findOneAndUpdate({"title": req.body.old_title}, req.body.updated_movie, function (err, movie) {
             if (err) {
-                return res.status(403).json({ success: false, message: "Unable to update title passed in." });
+                return res.status(403).json({ success: false, message: "Error: Unable to update movie. " });
             } else if (!movie) {
-                return res.status(403).json({ success: false, message: "Unable to find title to update." });
+                return res.status(403).json({ success: false, message: "Error: Unable to find title to update. " });
             } else {
-                return res.status(200).json({ success: true, message: "Successfully updated title." });
+                return res.status(200).json({ success: true, message: "Error: Successfully updated movie. " });
             }
         });
     }
@@ -155,7 +155,7 @@ router.route('/movies')
             movie.save(function (err) {
                 if (err) {
                     if (err.code === 11000) {
-                        return res.json({ success: false, message: "That movie already exists." });
+                        return res.json({ success: false, message: "Error: The movie title already exists." });
                     } else {
                         return res.send(err);
                     }
