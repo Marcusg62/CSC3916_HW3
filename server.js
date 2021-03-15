@@ -96,7 +96,7 @@ router.delete('/movies/:movieTitle', (req, res) => {
             } else if (!movie) {
                 return res.status(403).json({ success: false, message: "Error: No movie found to delete. " });
             } else { 
-                return res.status(200).json({ success: true, message: "Error: Successfully deleted title. " });
+                return res.status(200).json({ success: true, message: "Successfully deleted title. " });
             }
         });
     }
@@ -133,7 +133,7 @@ router.put('/movies', (req, res) => {
             } else if (!movie) {
                 return res.status(403).json({ success: false, message: "Error: Unable to find title to update. " });
             } else {
-                return res.status(200).json({ success: true, message: "Error: Successfully updated movie. " });
+                return res.status(200).json({ success: true, message: "Successfully updated movie. " });
             }
         });
     }
